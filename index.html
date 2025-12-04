@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canva Authorization - NenLogic</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #1C1C1E;
+            color: #FFFFFF;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 500px;
+            text-align: center;
+        }
+        .logo {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, #FF6B35, #00FF87, #00D4FF, #A855F7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 2rem;
+        }
+        h1 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #00FF87;
+        }
+        .status {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 1.5rem 0;
+        }
+        .code-box {
+            background: #000;
+            border: 1px solid #00FF87;
+            border-radius: 8px;
+            padding: 1rem;
+            margin: 1rem 0;
+            word-break: break-all;
+            font-family: monospace;
+            font-size: 0.85rem;
+            color: #00D4FF;
+            position: relative;
+        }
+        .copy-btn {
+            background: linear-gradient(90deg, #00FF87, #00D4FF);
+            color: #1C1C1E;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 1rem;
+            transition: transform 0.2s;
+        }
+        .copy-btn:hover {
+            transform: scale(1.05);
+        }
+        .copy-btn:active {
+            transform: scale(0.95);
+        }
+        .error {
+            color: #FF6B35;
+        }
+        .success {
+            color: #00FF87;
+        }
+        .instructions {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 1.5rem;
+            line-height: 1.6;
+        }
+        .instructions ol {
+            text-align: left;
+            padding-left: 1.5rem;
+        }
+        .instructions li {
+            margin: 0.5rem 0;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">NenLogic</div>
+
+        <div id="loading" class="status">
+            <p>Processing authorization...</p>
+        </div>
+
+        <div id="success" class="status hidden">
+            <h1 class="success">Authorization Successful!</h1>
+            <p>Copy the code below and paste it into your terminal:</p>
+            <div class="code-box" id="code-display"></div>
+            <button class="copy-btn" onclick="copyCode()">Copy Code</button>
+            <div class="instructions">
+                <p><strong>Next steps:</strong></p>
+                <ol>
+                    <li>Copy the authorization code above</li>
+                    <li>Go back to your terminal</li>
+                    <li>Paste the code when prompted</li>
+                    <li>You can close this window</li>
+                </ol>
+            </div>
+        </div>
+
+        <div id="error" class="status hidden">
+            <h1 class="error">Authorization Failed</h1>
+            <p id="error-message"></p>
+            <div class="instructions">
+                <p>Please try again or check your Canva integration settings.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Parse URL parameters
+        const params = new URLSearchParams(window.location.search);
+        const code = params.get('code');
+        const error = params.get('error');
+        const errorDescription = params.get('error_description');
+
+        // Hide loading
+        document.getElementById('loading').classList.add('hidden');
+
+        if (code) {
+            // Success - show the code
+            document.getElementById('success').classList.remove('hidden');
+            document.getElementById('code-display').textContent = code;
+        } else if (error) {
+            // Error - show error message
+            document.getElementById('error').classList.remove('hidden');
+            document.getElementById('error-message').textContent =
+                errorDescription || error || 'An unknown error occurred';
+        } else {
+            // No code or error - probably direct access
+            document.getElementById('error').classList.remove('hidden');
+            document.getElementById('error-message').textContent =
+                'This page is used for Canva OAuth callbacks. Please start the authorization from your application.';
+        }
+
+        function copyCode() {
+            const code = document.getElementById('code-display').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                const btn = document.querySelector('.copy-btn');
+                btn.textContent = 'Copied!';
+                setTimeout(() => {
+                    btn.textContent = 'Copy Code';
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
